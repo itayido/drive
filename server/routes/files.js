@@ -21,16 +21,44 @@ router.get("/:username", async function (req, res) {
     for (const file of files) {
       const fullPath = path.join(basePath, file);
       const stats = await fs.stat(fullPath);
-
+      const obj = { name: file };
       if (stats.isDirectory()) {
         resArr.push(file + ": directory");
       } else if (stats.isFile()) {
         resArr.push(file + ": file");
       }
     }
-    res.send(resArr);
+    res.status(200).send(resArr);
   } catch (err) {
-    res.send("something went wrong", err);
+    res.status(400).send("something went wrong", err);
+  }
+});
+
+//delete  a file
+router.delete("/:username/:fileName", async (req, res) => {
+  try {
+    const basePath = path.join(
+      __dirname,
+      "..",
+      "public",
+      "users",
+      req.params.username
+    );
+
+    const files = await fs.readdir(basePath);
+
+    const file = files.find((t) => t === req.params.fileName);
+    if (!file) {
+      return res.status(404).send("File not found");
+    }
+
+    const fullPath = path.join(basePath, file);
+    await fs.unlink(fullPath);
+
+    res.status(200).send(`Deleted: ${file}`);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Something went wrong");
   }
 });
 
