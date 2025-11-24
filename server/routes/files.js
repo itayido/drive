@@ -30,38 +30,6 @@ router.get("/:username/*/:fileName/info", async (req, res) => {
   }
 });
 
-// delete a file
-router.delete("/:username/*/:fileName", async (req, res) => {
-  try {
-    const username = req.params.username;
-    const subPath = req.params[0] || "";
-    const fullPath = path.join(
-      __dirname,
-      "..",
-      "public",
-      "users",
-      username,
-      subPath,
-      req.params.fileName
-    );
-    const stats = await fs.stat(fullPath);
-
-    if (stats.isDirectory()) {
-      await fs.rm(fullPath, { recursive: true, force: true });
-      return res.status(200).send(`Deleted directory`);
-    }
-
-    if (stats.isFile()) {
-      await fs.unlink(fullPath);
-      return res.status(200).send(`Deleted file`);
-    }
-  } catch (err) {
-    res
-      .status(500)
-      .send({ error: "something went wrong", details: err.message });
-  }
-});
-
 router.get("/:username/*/:fileName", async (req, res) => {
   try {
     const { username, fileName } = req.params;
@@ -135,17 +103,57 @@ router.get("/:username/*", async (req, res) => {
   }
 });
 
+// delete a file
+router.delete("/:username/*/:fileName", async (req, res) => {
+  try {
+    const username = req.params.username;
+    const subPath = req.params[0] || "";
+    const fullPath = path.join(
+      __dirname,
+      "..",
+      "public",
+      "users",
+      username,
+      subPath,
+      req.params.fileName
+    );
+    const stats = await fs.stat(fullPath);
+
+    if (stats.isDirectory()) {
+      await fs.rm(fullPath, { recursive: true, force: true });
+      return res.status(200).send(`Deleted directory`);
+    }
+
+    if (stats.isFile()) {
+      await fs.unlink(fullPath);
+      return res.status(200).send(`Deleted file`);
+    }
+  } catch (err) {
+    res
+      .status(500)
+      .send({ error: "something went wrong", details: err.message });
+  }
+});
+
 // rename a file
-router.put("/:username/:fileName", async (req, res) => {
+router.put("/:username/*/:fileName", async (req, res) => {
   try {
     const { username, fileName } = req.params;
+    const subPath = req.params[0] || "";
     const { newName } = req.body;
 
     if (!newName || typeof newName !== "string") {
       return res.status(400).json({ error: "Missing or invalid Name" });
     }
 
-    const basePath = path.join(__dirname, "..", "public", "users", username);
+    const basePath = path.join(
+      __dirname,
+      "..",
+      "public",
+      "users",
+      username,
+      subPath
+    );
     const oldPath = path.join(basePath, fileName);
     const newPath = path.join(basePath, newName);
 
@@ -168,7 +176,7 @@ router.put("/:username/:fileName", async (req, res) => {
 });
 
 // copy a file
-router.post("/:username/*/copy", async (req, res) => {
+router.post("/:username/:fileName/copy", async (req, res) => {
   try {
     const { username, fileName } = req.params;
 

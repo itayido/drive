@@ -73,8 +73,9 @@ function Home() {
 
   async function renameFile(oldName, newName) {
     try {
+      const pathPart = subPath ? `${subPath}` : "";
       const response = await fetch(
-        `http://localhost:3000/files/${username}/${oldName}`,
+        `http://localhost:3000/files/${username}/${pathPart}/${oldName}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
