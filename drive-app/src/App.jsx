@@ -16,10 +16,7 @@ function App() {
           <Route path="/SignUp" element={<SignUp />} />
 
           <Route element={<ProtectedRoute />}>
-            <Route path="/home/:username" element={<Home />}>
-              {/* example to a route inside /home: */}
-              {/* <Route path="info" element={<Info />} /> */}
-            </Route>
+            <Route path="/home/:username/*" element={<Home />} />
           </Route>
 
           <Route path="*" element={<h1>EROR 404</h1>} />

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router";
+import { Link, useLocation, useParams } from "react-router";
 
 function Home() {
   const [files, setFiles] = useState([]);
@@ -8,11 +8,16 @@ function Home() {
   const [renameInputs, setRenameInputs] = useState({});
 
   const { username } = useParams();
+  const location = useLocation();
+  const subPath = location.pathname.replace(`/home/${username}`, "");
 
   useEffect(() => {
     async function fetchitems() {
       try {
-        const response = await fetch(`http://localhost:3000/files/${username}`);
+        const pathPart = subPath ? `${subPath}` : "";
+        const response = await fetch(
+          `http://localhost:3000/files/${username}${pathPart}/`
+        );
         const data = await response.json();
         if (!response.ok) throw new Error("something went wrong");
         setFiles(data);
@@ -21,14 +26,18 @@ function Home() {
       }
     }
     fetchitems();
-  }, [username]);
+  }, [username, subPath]);
 
   async function deleteFile(file) {
     try {
-      await fetch(`http://localhost:3000/files/${username}/${file}`, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-      });
+      const pathPart = subPath ? `${subPath}` : "";
+      await fetch(
+        `http://localhost:3000/files/${username}/${pathPart}/${file}`,
+        {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+        }
+      );
 
       setFiles((prev) => prev.filter((f) => f.name !== file));
 
@@ -94,10 +103,11 @@ function Home() {
       setOpenFile(null);
       return;
     }
+    const pathPart = subPath ? `${subPath}/` : "";
 
     try {
       const response = await fetch(
-        `http://localhost:3000/files/${username}/${file.name}`
+        `http://localhost:3000/files/${username}${pathPart}${file.name}`
       );
       const data = await response.text();
 
@@ -133,9 +143,15 @@ function Home() {
 
         return (
           <div key={index}>
-            <p>
-              {file.name} type: {file.type}
-            </p>
+            {file.type === "file" ? (
+              <p>
+                {file.name} type: {file.type}
+              </p>
+            ) : (
+              <Link to={`./${file.name}`}>
+                {file.name} type: {file.type}
+              </Link>
+            )}
 
             <input
               type="text"
@@ -173,7 +189,7 @@ function Home() {
             {isFileOpen && (
               <div>
                 {openFile.content === "" ? (
-                  <p>This file is empty.</p>
+                  <p>This file is empty</p>
                 ) : (
                   openFile.content
                 )}

@@ -9,14 +9,18 @@ var fs = require("fs").promises;
 var path = require("path");
 
 //get all files
-router.get("/:username", async (req, res) => {
+router.get("/:username/*", async (req, res) => {
   try {
+    const username = req.params.username;
+    const subPath = req.params[0] || "";
+
     const basePath = path.join(
       __dirname,
       "..",
       "public",
       "users",
-      req.params.username
+      username,
+      subPath
     );
 
     const files = await fs.readdir(basePath);
@@ -40,31 +44,71 @@ router.get("/:username", async (req, res) => {
 });
 
 // get file content
-router.get("/:username/:fileName", async (req, res) => {
+// router.get("/:username/*/:fileName", async (req, res) => {
+//   try {
+//     const username = req.params.username;
+//     const subPath = req.params[0] || "";
+//     const fullPath = path.join(
+//       __dirname,
+//       "..",
+//       "public",
+//       "users",
+//       username,
+//       subPath,
+//       req.params.fileName
+//     );
+
+//     let stats;
+//     try {
+//       stats = await fs.stat(fullPath);
+//     } catch (err) {
+//       return res
+//         .status(404)
+//         .send({ error: "file not found", details: err.message });
+//     }
+
+//     if (stats.isDirectory()) {
+//       return res.status(400).send({ error: "cannot read the directory" });
+//     }
+
+//     const content = await fs.readFile(fullPath, "utf8");
+//     res.status(200).send(content);
+//   } catch (err) {
+//     console.error(err);
+//     res
+//       .status(500)
+//       .send({ error: "Something went wrong", details: err.message });
+//   }
+// });
+router.get("/:username/:subPath*/:fileName", async (req, res) => {
   try {
+    const { username, fileName } = req.params;
+    const subPath = req.params.subPath || "";
+
     const fullPath = path.join(
       __dirname,
       "..",
       "public",
       "users",
-      req.params.username,
-      req.params.fileName
+      username,
+      subPath,
+      fileName
     );
 
     let stats;
     try {
       stats = await fs.stat(fullPath);
-    } catch {
+    } catch (err) {
       return res
         .status(404)
         .send({ error: "file not found", details: err.message });
     }
 
     if (stats.isDirectory()) {
-      return res
-        .status(400)
-        .send({ error: "cannot read the directory", details: err.message });
+      return res.status(400).send({ error: "cannot read the directory" });
     }
+
+    console.log("---------", fullPath);
 
     const content = await fs.readFile(fullPath, "utf8");
     res.status(200).send(content);
@@ -77,26 +121,29 @@ router.get("/:username/:fileName", async (req, res) => {
 });
 
 // delete a file
-router.delete("/:username/:fileName", async (req, res) => {
+router.delete("/:username/*/:fileName", async (req, res) => {
   try {
+    const username = req.params.username;
+    const subPath = req.params[0] || "";
     const fullPath = path.join(
       __dirname,
       "..",
       "public",
       "users",
-      req.params.username,
+      username,
+      subPath,
       req.params.fileName
     );
     const stats = await fs.stat(fullPath);
 
     if (stats.isDirectory()) {
       await fs.rm(fullPath, { recursive: true, force: true });
-      return res.status(200).send(`Deleted directory: ${fileName}`);
+      return res.status(200).send(`Deleted directory`);
     }
 
     if (stats.isFile()) {
       await fs.unlink(fullPath);
-      return res.status(200).send(`Deleted file: ${fileName}`);
+      return res.status(200).send(`Deleted file`);
     }
   } catch (err) {
     res
@@ -136,7 +183,7 @@ router.put("/:username/:fileName", async (req, res) => {
     const { newName } = req.body;
 
     if (!newName || typeof newName !== "string") {
-      return res.status(400).json({ error: "Missing or invalid 'newName'." });
+      return res.status(400).json({ error: "Missing or invalid Name" });
     }
 
     const basePath = path.join(__dirname, "..", "public", "users", username);
@@ -162,7 +209,7 @@ router.put("/:username/:fileName", async (req, res) => {
 });
 
 // copy a file
-router.post("/:username/:fileName/copy", async (req, res) => {
+router.post("/:username/*/copy", async (req, res) => {
   try {
     const { username, fileName } = req.params;
 
