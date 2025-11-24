@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { useEffect } from "react";
+import { useParams } from "react-router-dom";
 
 function Home() {
   const [data, setData] = useState("");
-  const username = "tohar";
+  const { username } = useParams();
+
   useEffect(() => {
     async function fetchitems() {
       try {
@@ -15,7 +17,8 @@ function Home() {
       }
     }
     fetchitems();
-  }, []);
+  }, [username]);
+
   return <h1>{data}</h1>;
 }
 export default Home;

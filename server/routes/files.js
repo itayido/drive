@@ -16,7 +16,13 @@ router.get("/:username", async function (req, res) {
       "users",
       req.params.username
     );
+
     const files = await fs.readdir(basePath);
+
+    if (files.length === 0) {
+      return res.send([]);
+    }
+
     const resArr = [];
     for (const file of files) {
       const fullPath = path.join(basePath, file);
@@ -28,9 +34,12 @@ router.get("/:username", async function (req, res) {
         resArr.push(file + ": file");
       }
     }
+
     res.send(resArr);
   } catch (err) {
-    res.send("something went wrong", err);
+    res
+      .status(500)
+      .send({ error: "Something went wrong", details: err.message });
   }
 });
 

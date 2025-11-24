@@ -11,23 +11,25 @@ function Login() {
     e.preventDefault();
 
     try {
-      const response = await fetch(
-        `http://localhost:3000/users?username=${userName}`
-      );
-      const data = await response.json();
+      const response = await fetch(`http://localhost:3000/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: userName,
+          password: password,
+        }),
+      });
 
-      if (data.length === 0) {
-        setMessage("Username not found.");
-        return;
-      }
-
-      const user = data[0];
-
-      if (user.website === password) {
-        localStorage.setItem("ActiveUser", JSON.stringify(user));
-        navigate("/home");
+      if (response.ok) {
+        setMessage("Login successful!");
+        const data = await response.json();
+        localStorage.setItem("ActiveUser", JSON.stringify(data));
+        navigate(`/home/${data.username}`);
       } else {
-        setMessage("Incorrect password.");
+        const errorData = await response.json();
+        setMessage(errorData.message || "Login failed");
       }
     } catch (error) {
       console.error("Error:", error);
@@ -62,7 +64,7 @@ function Login() {
         <br />
         <button type="submit">Login</button>
         <br />
-        <Link to="../register">Haven't got an account yet? register here</Link>
+        <Link to="../SignUp">Haven't got an account yet? sign up here</Link>
       </form>
       {message && <p>{message}</p>}
     </>

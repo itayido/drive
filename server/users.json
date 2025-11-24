@@ -1,0 +1,50 @@
+{
+  "tohar": {
+    "id": 1,
+    "email": "tohar@example.com",
+    "password": "1234",
+    "name": "to Har Le"
+  },
+  "ishay": {
+    "id": 2,
+    "email": "ishay@shayshay.com",
+    "password": "12345",
+    "name": "ishay shay"
+  },
+  "moriel": {
+    "id": 3,
+    "email": "bitanmoriel@gmail.com",
+    "password": "111",
+    "name": "Moriel Bitan"
+  },
+  "Avi": {
+    "id": 4,
+    "email": "avital@alien.com",
+    "password": "priviet",
+    "name": "Avital Tal"
+  },
+  "itay": {
+    "id": 5,
+    "email": "itay@tzahi.com",
+    "password": "999",
+    "name": "ita y"
+  },
+  "s": {
+    "id": 6,
+    "email": "s@s",
+    "password": "s",
+    "name": "s"
+  },
+  "d": {
+    "id": 7,
+    "email": "d@d",
+    "password": "1",
+    "name": "d"
+  },
+  "rd": {
+    "id": 8,
+    "email": "5@lsc",
+    "password": "1",
+    "name": "sscns"
+  }
+}

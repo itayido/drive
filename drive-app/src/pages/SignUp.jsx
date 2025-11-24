@@ -5,43 +5,56 @@ function SignUp() {
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
   const [verifyPassword, setVerifyPassword] = useState("");
+  const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
 
   async function handleSubmit(e) {
     e.preventDefault();
 
+    if (password !== verifyPassword) {
+      setMessage("Passwords don't match.");
+      return;
+    }
+
     try {
-      const response = await fetch(
-        `http://localhost:3000/users?username=${userName}`
-      );
-      const data = await response.json();
+      const response = await fetch("http://localhost:3000/SignUp", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: userName,
+          password: password,
+          email: email,
+          name: name,
+        }),
+      });
 
-      if (data.length !== 0) {
-        setMessage("Username already taken.");
-        return;
-      }
-
-      if (verifyPassword === password) {
-        setMessage(`Registered successfully, ${userName}!`);
-        navigate("/register/additionalInfo", {
-          state: { username: userName, password: password },
-        });
+      if (response.ok) {
+        const data = await response.json();
+        setMessage(`Registered successfully, ${data.username}!`);
+        localStorage.setItem("ActiveUser", JSON.stringify(data));
+        navigate(`/home/${data.username}`);
       } else {
-        setMessage("Passwords don't match.");
+        const errorData = await response.json();
+        setMessage(errorData.message || "Registration failed");
       }
     } catch (error) {
-      console.error("Error:", error);
-      setMessage("Something went wrong");
+      setMessage("Something went wrong: ", error);
     }
 
     setPassword("");
     setVerifyPassword("");
+    setUserName("");
+    setEmail("");
+    setName("");
   }
 
   return (
     <>
-      <h2>Register</h2>
+      <h2>Sign Up</h2>
       <form onSubmit={handleSubmit}>
         <label htmlFor="userName">Username: </label>
         <input
@@ -49,6 +62,24 @@ function SignUp() {
           type="text"
           value={userName}
           onChange={(e) => setUserName(e.target.value)}
+          required
+        />
+        <br />
+        <label htmlFor="email">Email: </label>
+        <input
+          id="email"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+        <br />
+        <label htmlFor="name">Full Name: </label>
+        <input
+          id="name"
+          type="text"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
           required
         />
         <br />
@@ -70,7 +101,7 @@ function SignUp() {
           required
         />
         <br />
-        <button type="submit">Register</button>
+        <button type="submit">Sign Up</button>
       </form>
       {message && <p>{message}</p>}
     </>
