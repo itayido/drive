@@ -1,6 +1,6 @@
 var express = require("express");
 var router = express.Router();
-var fs = require("fs").promises;
+var fs = require("fs/promises");
 var path = require("path");
 
 var express = require("express");
@@ -8,7 +8,7 @@ var router = express.Router();
 var fs = require("fs").promises;
 var path = require("path");
 
-// get all files list
+//get all files
 router.get("/:username", async (req, res) => {
   try {
     const basePath = path.join(
@@ -26,8 +26,8 @@ router.get("/:username", async (req, res) => {
       const fullPath = path.join(basePath, file);
       const stats = await fs.stat(fullPath);
 
-      if (stats.isDirectory()) resArr.push(file + ": directory");
-      if (stats.isFile()) resArr.push(file + ": file");
+      if (stats.isDirectory()) resArr.push({ name: file, type: "directory" });
+      if (stats.isFile()) resArr.push({ name: file, type: "file" });
     }
 
     res.status(200).send(resArr);
@@ -87,19 +87,21 @@ router.delete("/:username/:fileName", async (req, res) => {
       req.params.username,
       req.params.fileName
     );
+    const stats = await fs.stat(fullPath);
 
-    await fs.unlink(fullPath);
-    res.status(200).send(`Deleted: ${req.params.fileName}`);
-  } catch (err) {
-    if (err.code === "ENOENT") {
-      return res
-        .status(404)
-        .send({ error: "file not found", details: err.message });
+    if (stats.isDirectory()) {
+      await fs.rm(fullPath, { recursive: true, force: true });
+      return res.status(200).send(`Deleted directory: ${fileName}`);
     }
-    console.error(err);
+
+    if (stats.isFile()) {
+      await fs.unlink(fullPath);
+      return res.status(200).send(`Deleted file: ${fileName}`);
+    }
+  } catch (err) {
     res
       .status(500)
-      .send({ error: "Something went wrong", details: err.message });
+      .send({ error: "something went wrong", details: err.message });
   }
 });
 
@@ -117,7 +119,7 @@ router.get("/:username/:fileName/info", async (req, res) => {
 
     const stats = await fs.stat(fullPath);
 
-    res.json({
+    res.status(200).json({
       sizeBytes: stats.size,
       lastModified: stats.mtime,
       created: stats.birthtime,
