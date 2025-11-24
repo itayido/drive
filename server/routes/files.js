@@ -44,31 +44,71 @@ router.get("/:username/*", async (req, res) => {
 });
 
 // get file content
-router.get("/:username/:fileName", async (req, res) => {
+// router.get("/:username/*/:fileName", async (req, res) => {
+//   try {
+//     const username = req.params.username;
+//     const subPath = req.params[0] || "";
+//     const fullPath = path.join(
+//       __dirname,
+//       "..",
+//       "public",
+//       "users",
+//       username,
+//       subPath,
+//       req.params.fileName
+//     );
+
+//     let stats;
+//     try {
+//       stats = await fs.stat(fullPath);
+//     } catch (err) {
+//       return res
+//         .status(404)
+//         .send({ error: "file not found", details: err.message });
+//     }
+
+//     if (stats.isDirectory()) {
+//       return res.status(400).send({ error: "cannot read the directory" });
+//     }
+
+//     const content = await fs.readFile(fullPath, "utf8");
+//     res.status(200).send(content);
+//   } catch (err) {
+//     console.error(err);
+//     res
+//       .status(500)
+//       .send({ error: "Something went wrong", details: err.message });
+//   }
+// });
+router.get("/:username/:subPath*/:fileName", async (req, res) => {
   try {
+    const { username, fileName } = req.params;
+    const subPath = req.params.subPath || "";
+
     const fullPath = path.join(
       __dirname,
       "..",
       "public",
       "users",
-      req.params.username,
-      req.params.fileName
+      username,
+      subPath,
+      fileName
     );
 
     let stats;
     try {
       stats = await fs.stat(fullPath);
-    } catch {
+    } catch (err) {
       return res
         .status(404)
         .send({ error: "file not found", details: err.message });
     }
 
     if (stats.isDirectory()) {
-      return res
-        .status(400)
-        .send({ error: "cannot read the directory", details: err.message });
+      return res.status(400).send({ error: "cannot read the directory" });
     }
+
+    console.log("---------", fullPath);
 
     const content = await fs.readFile(fullPath, "utf8");
     res.status(200).send(content);
