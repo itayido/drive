@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useParams, useNavigate } from "react-router";
+import "../App.css";
 
 function Home() {
   const [files, setFiles] = useState([]);
