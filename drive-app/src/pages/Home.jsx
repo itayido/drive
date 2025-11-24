@@ -103,11 +103,11 @@ function Home() {
       setOpenFile(null);
       return;
     }
-    const pathPart = subPath ? `${subPath}/` : "";
+    const pathPart = subPath ? `${subPath}` : "";
 
     try {
       const response = await fetch(
-        `http://localhost:3000/files/${username}${pathPart}${file.name}`
+        `http://localhost:3000/files/${username}/${pathPart}/${file.name}`
       );
       const data = await response.text();
 
@@ -122,10 +122,11 @@ function Home() {
       setOpenInfo(null);
       return;
     }
+    const pathPart = subPath ? `${subPath}` : "";
 
     try {
       const response = await fetch(
-        `http://localhost:3000/files/${username}/${file.name}/info`
+        `http://localhost:3000/files/${username}${pathPart}/${file.name}/info`
       );
       const data = await response.json();
 
