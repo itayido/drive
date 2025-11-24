@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
-import { Link, useLocation, useParams } from "react-router";
+import { Link, useLocation, useParams, useNavigate } from "react-router";
 
 function Home() {
   const [files, setFiles] = useState([]);
   const [openFile, setOpenFile] = useState(null);
   const [openInfo, setOpenInfo] = useState(null);
   const [renameInputs, setRenameInputs] = useState({});
-
+  const navigate = useNavigate();
   const { username } = useParams();
   const location = useLocation();
   const subPath = location.pathname.replace(`/home/${username}`, "");
@@ -138,6 +138,14 @@ function Home() {
 
   return (
     <>
+      <button
+        onClick={() => {
+          localStorage.setItem("ActiveUser", {});
+          navigate("/login");
+        }}
+      >
+        Logout
+      </button>
       {files.map((file, index) => {
         const isFileOpen = openFile?.name === file.name;
         const isInfoOpen = openInfo?.name === file.name;

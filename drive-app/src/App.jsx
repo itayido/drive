@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router";
 import Home from "./pages/Home.jsx";
 import Login from "./pages/login.jsx";
 import SignUp from "./pages/SignUp.jsx";
+import "../src/App.css";
 
 import ProtectedRoute from "./pages/ProtectedRoute.jsx";
 
